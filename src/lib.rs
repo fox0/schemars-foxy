@@ -7,8 +7,14 @@ use schemars::schema::{InstanceType, SchemaObject, SingleOrVec};
 
 // compile tests
 #[cfg(test)]
-#[path = "../tests/schemas1/_models.rs"]
-mod tests_schemal;
+#[path = "../tests/ClsSchemas.rs"]
+mod test_cls_schemas;
+#[cfg(test)]
+#[path = "../tests/DespatchSchemas.rs"]
+mod test_despatch_schemas;
+#[cfg(test)]
+#[path = "../tests/OwnSchemas.rs"]
+mod test_own_schemas;
 
 #[derive(Default)]
 pub struct Walker {
@@ -93,7 +99,7 @@ impl Walker {
     }
 
     fn parse_object(&mut self, schema: SchemaObject, name: String, path: Option<PathBuf>) {
-        assert_eq!(Self::get_type(&schema), InstanceType::Object);
+        assert_eq!(Self::get_type(&schema).unwrap(), InstanceType::Object);
         let schema = schema.object.unwrap();
         let mut object = Object {
             name: name.clone(),
@@ -111,7 +117,8 @@ impl Walker {
                 }
             }
 
-            field.type_name = match Self::get_type(&schema) {
+            // TODO reference: Some("#/definitions/int8",
+            field.type_name = match Self::get_type(&schema).unwrap() {
                 InstanceType::Null => todo!(),
                 InstanceType::Boolean => "bool".into(),
                 InstanceType::Object => "()".into(),  // TODO
@@ -122,7 +129,7 @@ impl Walker {
                         SingleOrVec::Vec(_) => unimplemented!(),
                     };
                     let schema = schema.into_object();
-                    match Self::get_type(&schema) {
+                    match Self::get_type(&schema).unwrap() {
                         InstanceType::Null => todo!(),
                         InstanceType::Boolean => todo!(),
                         InstanceType::Object => {
@@ -158,9 +165,12 @@ impl Walker {
         self.objects.push(object);
     }
 
-    fn get_type(schema: &SchemaObject) -> InstanceType {
+    fn get_type(schema: &SchemaObject) -> Option<InstanceType> {
+        if schema.instance_type.is_none() {
+            return None;
+        }
         match schema.instance_type.clone().unwrap() {
-            SingleOrVec::Single(v) => *v,
+            SingleOrVec::Single(v) => Some(*v),
             SingleOrVec::Vec(_) => unimplemented!(),
         }
     }

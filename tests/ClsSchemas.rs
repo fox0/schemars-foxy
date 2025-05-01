@@ -13,7 +13,7 @@ pub struct achievement_cls__achievement_cls {
     pub created_at: String,
 }
 
-/// tests/schemas1/achievement_cls.json
+/// tests/ClsSchemas/achievement_cls.json
 #[derive(Debug, serde::Serialize, serde::Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct achievement_cls {
@@ -33,7 +33,7 @@ pub struct application_specialty_status_cls__application_specialty_status_cls {
     pub created_at: String,
 }
 
-/// tests/schemas1/application_specialty_status_cls.json
+/// tests/ClsSchemas/application_specialty_status_cls.json
 #[derive(Debug, serde::Serialize, serde::Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct application_specialty_status_cls {
@@ -53,7 +53,7 @@ pub struct application_status_cls__application_status_cls {
     pub created_at: String,
 }
 
-/// tests/schemas1/application_status_cls.json
+/// tests/ClsSchemas/application_status_cls.json
 #[derive(Debug, serde::Serialize, serde::Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct application_status_cls {
@@ -73,7 +73,7 @@ pub struct benefit_cls__benefit_cls {
     pub created_at: String,
 }
 
-/// tests/schemas1/benefit_cls.json
+/// tests/ClsSchemas/benefit_cls.json
 #[derive(Debug, serde::Serialize, serde::Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct benefit_cls {
@@ -97,7 +97,7 @@ pub struct direction_cls__direction_cls {
     pub created_at: String,
 }
 
-/// tests/schemas1/direction_cls.json
+/// tests/ClsSchemas/direction_cls.json
 #[derive(Debug, serde::Serialize, serde::Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct direction_cls {
@@ -119,7 +119,7 @@ pub struct document_type_cls__document_type_cls {
     pub created_at: String,
 }
 
-/// tests/schemas1/document_type_cls.json
+/// tests/ClsSchemas/document_type_cls.json
 #[derive(Debug, serde::Serialize, serde::Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct document_type_cls {
@@ -139,7 +139,7 @@ pub struct documents_check_status__documents_check_status {
     pub created_at: String,
 }
 
-/// tests/schemas1/documents_check_status.json
+/// tests/ClsSchemas/documents_check_status.json
 #[derive(Debug, serde::Serialize, serde::Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct documents_check_status {
@@ -159,7 +159,7 @@ pub struct education_form_cls__education_form_cls {
     pub created_at: String,
 }
 
-/// tests/schemas1/education_form_cls.json
+/// tests/ClsSchemas/education_form_cls.json
 #[derive(Debug, serde::Serialize, serde::Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct education_form_cls {
@@ -179,7 +179,7 @@ pub struct education_level_cls__education_level_cls {
     pub created_at: String,
 }
 
-/// tests/schemas1/education_level_cls.json
+/// tests/ClsSchemas/education_level_cls.json
 #[derive(Debug, serde::Serialize, serde::Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct education_level_cls {
@@ -199,7 +199,7 @@ pub struct free_education_reasons_cls__free_education_reasons_cls {
     pub created_at: String,
 }
 
-/// tests/schemas1/free_education_reasons_cls.json
+/// tests/ClsSchemas/free_education_reasons_cls.json
 #[derive(Debug, serde::Serialize, serde::Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct free_education_reasons_cls {
@@ -219,7 +219,7 @@ pub struct gender_cls__gender_cls {
     pub created_at: String,
 }
 
-/// tests/schemas1/gender_cls.json
+/// tests/ClsSchemas/gender_cls.json
 #[derive(Debug, serde::Serialize, serde::Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct gender_cls {
@@ -239,7 +239,7 @@ pub struct oksm_cls__oksm_cls {
     pub created_at: String,
 }
 
-/// tests/schemas1/oksm_cls.json
+/// tests/ClsSchemas/oksm_cls.json
 #[derive(Debug, serde::Serialize, serde::Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct oksm_cls {
@@ -259,7 +259,7 @@ pub struct packages_status_cls__packages_status_cls {
     pub created_at: String,
 }
 
-/// tests/schemas1/packages_status_cls.json
+/// tests/ClsSchemas/packages_status_cls.json
 #[derive(Debug, serde::Serialize, serde::Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct packages_status_cls {
@@ -280,7 +280,7 @@ pub struct payment_form_cls__payment_form_cls {
     pub created_at: String,
 }
 
-/// tests/schemas1/payment_form_cls.json
+/// tests/ClsSchemas/payment_form_cls.json
 #[derive(Debug, serde::Serialize, serde::Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct payment_form_cls {
@@ -300,7 +300,7 @@ pub struct regions_cls__regions_cls {
     pub created_at: String,
 }
 
-/// tests/schemas1/regions_cls.json
+/// tests/ClsSchemas/regions_cls.json
 #[derive(Debug, serde::Serialize, serde::Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct regions_cls {
@@ -320,7 +320,7 @@ pub struct special_conditions_cls__special_conditions_cls {
     pub created_at: String,
 }
 
-/// tests/schemas1/special_conditions_cls.json
+/// tests/ClsSchemas/special_conditions_cls.json
 #[derive(Debug, serde::Serialize, serde::Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct special_conditions_cls {
@@ -341,7 +341,7 @@ pub struct subjects_cls__subjects_cls {
     pub code_esnsi: Option<String>,
 }
 
-/// tests/schemas1/subjects_cls.json
+/// tests/ClsSchemas/subjects_cls.json
 #[derive(Debug, serde::Serialize, serde::Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct subjects_cls {

@@ -20,12 +20,23 @@ fn run_test(path: &str) {
 
     let result = format!("{}", walker);
     assert_eq!(
-        read_to_string(path.to_owned() + "/_models.rs").unwrap(),
+        read_to_string(path.to_owned() + ".rs").unwrap(),
         result
     );
 }
 
 #[test]
-fn schemas1() {
-    run_test("tests/schemas1");
+fn cls_schemas() {
+    run_test("tests/ClsSchemas");
+}
+
+#[test]
+fn despatch_schemas() {
+    run_test("tests/DespatchSchemas");
+}
+
+#[ignore]
+#[test]
+fn own_schemas() {
+    run_test("tests/OwnSchemas");
 }
