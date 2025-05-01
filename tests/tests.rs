@@ -33,16 +33,15 @@ fn cls_schemas() {
     run_test("tests/ClsSchemas");
 }
 
-#[ignore]
 #[test]
 fn despatch_schemas() {
-    init();
+    // init();
     run_test("tests/DespatchSchemas");
 }
 
 #[ignore]
 #[test]
 fn own_schemas() {
-    init();
+    // init();
     run_test("tests/OwnSchemas");
 }

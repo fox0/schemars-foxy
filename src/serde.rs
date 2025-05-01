@@ -15,8 +15,10 @@ pub struct Walker {
 struct Object {
     name: String,
     path: Option<PathBuf>,
-    // <name, field>
+    // <name, _>
     fields: IndexMap<String, Field>,
+    // <name, _>
+    custom_types: IndexMap<String, CustomType>,
 }
 
 #[derive(Default)]
@@ -24,6 +26,10 @@ struct Field {
     description: Option<String>,
     type_name: String,
     is_required: bool,
+}
+
+struct CustomType {
+    type_name: String,
 }
 
 impl std::fmt::Display for Walker {
@@ -39,6 +45,13 @@ impl std::fmt::Display for Walker {
 
 impl std::fmt::Display for Object {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> Result<(), std::fmt::Error> {
+        if !self.custom_types.is_empty() {
+            for (name, custom_type) in &self.custom_types {
+                writeln!(f, "pub type {} = {};", name, custom_type.type_name)?;
+            }
+            writeln!(f)?;
+        }
+
         if let Some(path) = &self.path {
             writeln!(f, "/// {}", path.display())?;
         }
@@ -84,15 +97,18 @@ impl Walker {
 
         match schema.instance_type {
             // Some(InstanceType::Null) => todo!(),
-            InstanceType::Boolean => "bool".into(),
-            InstanceType::Object => self.parse_object(schema, name, None),
-            InstanceType::Array => self.parse_array(schema, name),
+            Some(InstanceType::Boolean) => "bool".into(),
+            Some(InstanceType::Object) => self.parse_object(schema, name, None),
+            Some(InstanceType::Array) => self.parse_array(schema, name),
             // Some(InstanceType::Number) => todo!(),
-            InstanceType::Integer => self.parse_number(schema),
-            InstanceType::String => "String".into(),
-            // None => {
-            //     todo!() // TODO reference: Some("#/definitions/int8",
-            // }
+            Some(InstanceType::Integer) => self.parse_number(schema),
+            Some(InstanceType::String) => "String".into(),
+            None => {
+                debug_assert!(schema.custom_type.is_some());
+
+                "()/*TODO*/".into()
+                // schema.custom_type = Some("#/definitions/int4",
+            }
         }
     }
 
@@ -100,13 +116,26 @@ impl Walker {
     #[must_use]
     fn parse_object(&mut self, schema: Schema, name: String, path: Option<PathBuf>) -> String {
         trace!("Walker::parse_object()");
-        debug_assert!(schema.instance_type == InstanceType::Object);
+        debug_assert_eq!(schema.instance_type, Some(InstanceType::Object));
 
         let mut object = Object {
             name: name.clone(),
             path,
             ..Default::default()
         };
+
+        if let Some(definitions) = schema.definitions {
+            for (key, schema) in definitions {
+                let name = format!("{}__{}", name, key);
+                let type_name = match schema.instance_type {
+                    Some(InstanceType::Integer) => self.parse_number(schema),
+                    Some(InstanceType::String) => "String".into(),
+                    _ => todo!(),
+                };
+                let custom_type = CustomType { type_name };
+                object.custom_types.insert(name, custom_type);
+            }
+        }
 
         if let Some(properties) = schema.properties {
             for (key, schema) in properties {
@@ -134,7 +163,7 @@ impl Walker {
     #[must_use]
     fn parse_array(&mut self, schema: Schema, name: String) -> String {
         trace!("Walker::parse_array()");
-        debug_assert!(schema.instance_type == InstanceType::Array);
+        debug_assert_eq!(schema.instance_type, Some(InstanceType::Array));
 
         let schema = schema.items.unwrap();
         let type_name = self.parse_any(*schema, name);
@@ -145,7 +174,7 @@ impl Walker {
     #[must_use]
     fn parse_number(&mut self, schema: Schema) -> String {
         trace!("Walker::parse_number()");
-        debug_assert!(schema.instance_type == InstanceType::Integer);
+        debug_assert_eq!(schema.instance_type, Some(InstanceType::Integer));
 
         if schema.minimum.unwrap_or(-1) >= 0 {
             "u32".into()

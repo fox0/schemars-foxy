@@ -12,17 +12,22 @@ use serde::Deserialize;
 #[serde(rename_all = "camelCase")]
 pub struct Schema {
     #[serde(rename = "type")]
-    pub instance_type: InstanceType,
+    pub instance_type: Option<InstanceType>,
+    #[serde(rename = "$ref")]
+    pub custom_type: Option<String>,
+    pub description: Option<String>,
+    pub required: Option<Vec<String>>,
+    pub definitions: Option<IndexMap<String, Schema>>,
     pub properties: Option<IndexMap<String, Schema>>,
     pub additional_properties: Option<IndexMap<String, String>>, // TODO
     pub unique_items: Option<bool>,
     pub items: Option<Box<Schema>>,
-    pub minimum: Option<i32>,
-    pub maximum: Option<i32>,
-    pub description: Option<String>,
+    pub minimum: Option<isize>,
+    pub maximum: Option<isize>,
     pub format: Option<String>,
-    pub required: Option<Vec<String>>,
-    pub min_length: Option<u32>,
+    pub pattern: Option<String>,
+    pub min_length: Option<usize>,
+    pub max_length: Option<usize>,
 }
 
 #[derive(Debug, PartialEq, Deserialize)]
@@ -60,7 +65,20 @@ mod tests {
     #[test]
     fn payment_form_cls() {
         let _schema = Schema::try_new("tests/ClsSchemas/payment_form_cls.json").unwrap();
-        // dbg!(_schema);
+        assert!(true);
+    }
+
+    #[test]
+    fn spo_epgu_additional_information() {
+        let _schema = Schema::try_new("tests/DespatchSchemas/spo_epgu_additional_information/spo_epgu_additional_information.json").unwrap();
+        assert!(true);
+    }
+
+    #[test]
+    fn spo_epgu_application() {
+        let _schema =
+            Schema::try_new("tests/DespatchSchemas/spo_epgu_application/spo_epgu_application.json")
+                .unwrap();
         assert!(true);
     }
 }
