@@ -1,5 +1,4 @@
 #![allow(non_camel_case_types)]
-#![rustfmt::skip]
 
 /// tests/DespatchSchemas/spo_epgu_additional_information/spo_epgu_additional_information.json
 #[derive(Debug, serde::Serialize, serde::Deserialize)]
@@ -42,4 +41,3 @@ pub struct spo_sp_application_specialty_status {
 pub struct spo_sp_application_status {
     pub spo_sp_application_status: (),
 }
-

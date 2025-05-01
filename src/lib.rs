@@ -1,10 +1,9 @@
-#![feature(custom_inner_attributes)] // rustfmt::skip
-
 use std::fs::File;
 use std::io::BufReader;
 use std::path::{Path, PathBuf};
 
 use indexmap::IndexMap;
+use rustfmt_wrapper::rustfmt;
 use schemars::schema::{InstanceType, SchemaObject, SingleOrVec};
 
 // compile tests
@@ -41,22 +40,12 @@ struct Field {
 
 impl std::fmt::Display for Walker {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> Result<(), std::fmt::Error> {
-        writeln!(f, "#![allow(non_camel_case_types)]")?;
-        writeln!(f, "#![rustfmt::skip]")?;
-        writeln!(f)?;
+        let mut result = String::new();
+        result = format!("{}{}\n", result, "#![allow(non_camel_case_types)]\n");
         for i in &self.objects {
-            writeln!(f, "{}", i)?;
+            result = format!("{}{}\n", result, i);
         }
-        // writeln!(f, "#[cfg(test)]")?;
-        // writeln!(f, "mod tests {{")?;
-        // writeln!(f, "    use super::*;")?;
-        // // TODO tests
-        // // #[test]
-        // // fn test_add() {
-        // //     assert_eq!(add(1, 2), 3);
-        // // }
-        // writeln!(f, "}}")?;
-        Ok(())
+        write!(f, "{}", rustfmt(result).unwrap())
     }
 }
 
@@ -72,12 +61,12 @@ impl std::fmt::Display for Object {
         for (name, field) in &self.fields {
             debug_assert!(!field.type_name.is_empty());
             if let Some(description) = &field.description {
-                writeln!(f, "    /// {}", description)?;
+                writeln!(f, "/// {}", description)?;
             }
             if field.is_required {
-                writeln!(f, "    pub {}: {},", name, field.type_name)?;
+                writeln!(f, "pub {}: {},", name, field.type_name)?;
             } else {
-                writeln!(f, "    pub {}: Option<{}>,", name, field.type_name)?;
+                writeln!(f, "pub {}: Option<{}>,", name, field.type_name)?;
             }
         }
         writeln!(f, "}}")?;

@@ -1,5 +1,4 @@
 #![allow(non_camel_case_types)]
-#![rustfmt::skip]
 
 #[derive(Debug, serde::Serialize, serde::Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -38,7 +37,8 @@ pub struct application_specialty_status_cls__application_specialty_status_cls {
 #[derive(Debug, serde::Serialize, serde::Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct application_specialty_status_cls {
-    pub application_specialty_status_cls: Option<Vec<application_specialty_status_cls__application_specialty_status_cls>>,
+    pub application_specialty_status_cls:
+        Option<Vec<application_specialty_status_cls__application_specialty_status_cls>>,
 }
 
 #[derive(Debug, serde::Serialize, serde::Deserialize)]
@@ -113,7 +113,7 @@ pub struct document_type_cls__document_type_cls {
     /// Наименование
     pub name: String,
     /// Реквизиты из расширенного списка в формате json (см. пункт 'Документы поступающего. Общее описание' Инструкции API)
-    pub fields_description: Option<()/*any*/>,
+    pub fields_description: Option<() /*any*/>,
     /// Признак актуальности
     pub actual: bool,
     /// Время создания
@@ -204,7 +204,8 @@ pub struct free_education_reasons_cls__free_education_reasons_cls {
 #[derive(Debug, serde::Serialize, serde::Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct free_education_reasons_cls {
-    pub free_education_reasons_cls: Option<Vec<free_education_reasons_cls__free_education_reasons_cls>>,
+    pub free_education_reasons_cls:
+        Option<Vec<free_education_reasons_cls__free_education_reasons_cls>>,
 }
 
 #[derive(Debug, serde::Serialize, serde::Deserialize)]
@@ -348,4 +349,3 @@ pub struct subjects_cls__subjects_cls {
 pub struct subjects_cls {
     pub subjects_cls: Option<Vec<subjects_cls__subjects_cls>>,
 }
-
