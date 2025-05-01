@@ -1,21 +1,17 @@
+use std::fs::read_to_string;
+
 use pretty_assertions::assert_eq;
-use std::fs::{read_dir, read_to_string};
+use glob::glob;
 
 use schemars_foxy::Walker;
 
 fn run_test(path: &str) {
-    let paths = read_dir(path).unwrap();
-
-    let mut v: Vec<_> = paths
-        .map(|o| o.unwrap())
-        .filter(|a| a.file_name().into_string().unwrap().ends_with(".json"))
-        .collect();
-    v.sort_by(|a, b| a.file_name().cmp(&b.file_name()));
-
     let mut walker = Walker::default();
 
-    for i in v {
-        walker.run_parse(i.path());
+    let pattern = path.to_owned() + "/**/*.json";
+    for i in glob(pattern.as_str()).unwrap() {
+        let i = i.unwrap();
+        walker.run_parse(i);
     }
 
     let result = format!("{}", walker);

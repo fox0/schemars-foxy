@@ -166,28 +166,9 @@ impl Walker {
     }
 
     fn get_type(schema: &SchemaObject) -> Option<InstanceType> {
-        if schema.instance_type.is_none() {
-            return None;
-        }
-        match schema.instance_type.clone().unwrap() {
+        match schema.instance_type.clone()? {
             SingleOrVec::Single(v) => Some(*v),
             SingleOrVec::Vec(_) => unimplemented!(),
         }
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use indexmap::IndexMap;
-
-    #[test]
-    fn preserve_order() {
-        let mut fields: IndexMap<&str, i32> = IndexMap::new();
-        fields.insert("1", 1);
-        fields.insert("0", 0);
-        assert_eq!(fields["1"], 1);
-        assert_eq!(fields["0"], 0);
-        let v: Vec<_> = fields.into_iter().collect();
-        assert_eq!(v, vec![("1", 1), ("0", 0)]);
     }
 }
