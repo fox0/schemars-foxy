@@ -1,9 +1,14 @@
 use std::fs::File;
 use std::io::BufReader;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 
 use indexmap::IndexMap;
 use schemars::schema::{InstanceType, SchemaObject, SingleOrVec};
+
+// compile tests
+#[cfg(test)]
+#[path = "../tests/schemas1/_models.rs"]
+mod tests_schemal;
 
 #[derive(Default)]
 pub struct Walker {
@@ -14,8 +19,8 @@ pub struct Walker {
 struct Object {
     name: String,
     // TODO desc
-    filename: Option<String>,
-    // name: field
+    path: Option<PathBuf>,
+    // <name, field>
     fields: IndexMap<String, Field>,
 }
 
@@ -33,15 +38,15 @@ impl std::fmt::Display for Walker {
         for i in &self.objects {
             writeln!(f, "{}", i)?;
         }
-        writeln!(f, "#[cfg(test)]")?;
-        writeln!(f, "mod tests {{")?;
-        writeln!(f, "    use super::*;")?;
-        // TODO tests
-        // #[test]
-        // fn test_add() {
-        //     assert_eq!(add(1, 2), 3);
-        // }
-        writeln!(f, "}}")?;
+        // writeln!(f, "#[cfg(test)]")?;
+        // writeln!(f, "mod tests {{")?;
+        // writeln!(f, "    use super::*;")?;
+        // // TODO tests
+        // // #[test]
+        // // fn test_add() {
+        // //     assert_eq!(add(1, 2), 3);
+        // // }
+        // writeln!(f, "}}")?;
         Ok(())
     }
 }
@@ -49,8 +54,8 @@ impl std::fmt::Display for Walker {
 impl std::fmt::Display for Object {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> Result<(), std::fmt::Error> {
         // TODO desc
-        if let Some(filename) = &self.filename {
-            writeln!(f, "/// {}", filename)?;
+        if let Some(path) = &self.path {
+            writeln!(f, "/// {}", path.display())?;
         }
         writeln!(f, "#[derive(Debug, serde::Serialize, serde::Deserialize)]")?;
         writeln!(f, "#[serde(deny_unknown_fields)]")?;
@@ -84,16 +89,15 @@ impl Walker {
             .to_str()
             .unwrap()
             .to_string();
-        let filename = path.file_name().unwrap().to_str().unwrap().to_string();
-        self.parse_object(schema, name, Some(filename));
+        self.parse_object(schema, name, Some(path.to_path_buf()));
     }
 
-    fn parse_object(&mut self, schema: SchemaObject, name: String, filename: Option<String>) {
+    fn parse_object(&mut self, schema: SchemaObject, name: String, path: Option<PathBuf>) {
         assert_eq!(Self::get_type(&schema), InstanceType::Object);
         let schema = schema.object.unwrap();
         let mut object = Object {
             name: name.clone(),
-            filename,
+            path,
             ..Default::default()
         };
 
@@ -110,7 +114,7 @@ impl Walker {
             field.type_name = match Self::get_type(&schema) {
                 InstanceType::Null => todo!(),
                 InstanceType::Boolean => "bool".into(),
-                InstanceType::Object => "/*TODO Object*/".into(),
+                InstanceType::Object => "()".into(),  // TODO
                 InstanceType::Array => {
                     let validator = schema.array.unwrap();
                     let schema = match validator.items.unwrap() {
