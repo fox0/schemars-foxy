@@ -107,13 +107,17 @@ pub struct direction_cls {
 
 #[derive(Debug, serde::Serialize, serde::Deserialize)]
 #[serde(deny_unknown_fields)]
+pub struct document_type_cls__document_type_cls__fields_description {}
+
+#[derive(Debug, serde::Serialize, serde::Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct document_type_cls__document_type_cls {
     /// Идентификатор
     pub id: u32,
     /// Наименование
     pub name: String,
     /// Реквизиты из расширенного списка в формате json (см. пункт 'Документы поступающего. Общее описание' Инструкции API)
-    pub fields_description: Option<() /*any*/>,
+    pub fields_description: Option<document_type_cls__document_type_cls__fields_description>,
     /// Признак актуальности
     pub actual: bool,
     /// Время создания

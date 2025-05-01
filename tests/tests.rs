@@ -18,18 +18,31 @@ fn run_test(path: &str) {
     assert_eq!(read_to_string(path.to_owned() + ".rs").unwrap(), result);
 }
 
-#[test]
-fn cls_schemas() {
-    run_test("tests/ClsSchemas");
+#[allow(dead_code)]
+fn init() {
+    colog::default_builder()
+        .filter(None, log::LevelFilter::Trace)
+        .default_format()
+        .format_source_path(true)
+        .init();
 }
 
 #[test]
+fn cls_schemas() {
+    // init();
+    run_test("tests/ClsSchemas");
+}
+
+#[ignore]
+#[test]
 fn despatch_schemas() {
+    init();
     run_test("tests/DespatchSchemas");
 }
 
 #[ignore]
 #[test]
 fn own_schemas() {
+    init();
     run_test("tests/OwnSchemas");
 }
