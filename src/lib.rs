@@ -1,3 +1,5 @@
+#![feature(custom_inner_attributes)] // rustfmt::skip
+
 use std::fs::File;
 use std::io::BufReader;
 use std::path::{Path, PathBuf};
@@ -40,6 +42,7 @@ struct Field {
 impl std::fmt::Display for Walker {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> Result<(), std::fmt::Error> {
         writeln!(f, "#![allow(non_camel_case_types)]")?;
+        writeln!(f, "#![rustfmt::skip]")?;
         writeln!(f)?;
         for i in &self.objects {
             writeln!(f, "{}", i)?;
@@ -100,6 +103,21 @@ impl Walker {
 
     /// return: type_name
     #[must_use]
+    fn parse_any(&mut self, schema: SchemaObject, name: String) -> String {
+        match Self::get_type(&schema) {
+            Some(InstanceType::Null) => todo!(),
+            Some(InstanceType::Boolean) => "bool".into(),
+            Some(InstanceType::Object) => self.parse_object(schema, name, None),
+            Some(InstanceType::Array) => self.parse_array(schema, name),
+            Some(InstanceType::Number) => todo!(),
+            Some(InstanceType::Integer) => self.parse_number(schema),
+            Some(InstanceType::String) => "String".into(),
+            None => todo!(), // TODO reference: Some("#/definitions/int8",
+        }
+    }
+
+    /// return: type_name
+    #[must_use]
     fn parse_object(
         &mut self,
         schema: SchemaObject,
@@ -107,7 +125,10 @@ impl Walker {
         path: Option<PathBuf>,
     ) -> String {
         debug_assert!(Self::get_type(&schema).unwrap() == InstanceType::Object);
-        let validator = schema.object.unwrap();
+        let validator = match schema.object {
+            Some(v) => v,
+            None => return "()/*any*/".into(),
+        };
 
         let mut object = Object {
             name: name.clone(),
@@ -125,16 +146,8 @@ impl Walker {
                 }
             }
 
-            // TODO reference: Some("#/definitions/int8",
-            field.type_name = match Self::get_type(&schema).unwrap() {
-                InstanceType::Null => todo!(),
-                InstanceType::Boolean => "bool".into(),
-                InstanceType::Object => "()".into(), // TODO
-                InstanceType::Array => self.parse_array(schema, format!("{}__{}", name, key)),
-                InstanceType::Number => todo!(),
-                InstanceType::Integer => self.parse_number(schema),
-                InstanceType::String => "String".into(),
-            };
+            let name = format!("{}__{}", name, key);
+            field.type_name = self.parse_any(schema, name);
 
             object.fields.insert(key, field);
         } // schema.properties
@@ -158,15 +171,7 @@ impl Walker {
             SingleOrVec::Vec(_) => unimplemented!(),
         };
         let schema = schema.into_object();
-        let type_name = match Self::get_type(&schema).unwrap() {
-            InstanceType::Null => todo!(),
-            InstanceType::Boolean => todo!(),
-            InstanceType::Object => self.parse_object(schema, name.clone(), None),
-            InstanceType::Array => todo!(),
-            InstanceType::Number => todo!(),
-            InstanceType::Integer => todo!(),
-            InstanceType::String => todo!(),
-        };
+        let type_name = self.parse_any(schema, name);
         format!("Vec<{}>", type_name)
     }
 

@@ -1,5 +1,0 @@
-ignore = [
-    "tests/ClsSchemas.rs",
-    "tests/DespatchSchemas.rs",
-    "tests/OwnSchemas.rs",
-]

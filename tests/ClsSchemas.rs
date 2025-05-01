@@ -1,4 +1,5 @@
 #![allow(non_camel_case_types)]
+#![rustfmt::skip]
 
 #[derive(Debug, serde::Serialize, serde::Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -112,7 +113,7 @@ pub struct document_type_cls__document_type_cls {
     /// Наименование
     pub name: String,
     /// Реквизиты из расширенного списка в формате json (см. пункт 'Документы поступающего. Общее описание' Инструкции API)
-    pub fields_description: Option<()>,
+    pub fields_description: Option<()/*any*/>,
     /// Признак актуальности
     pub actual: bool,
     /// Время создания
