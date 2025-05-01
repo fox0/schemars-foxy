@@ -83,7 +83,7 @@ impl std::fmt::Display for Object {
 }
 
 impl Walker {
-    pub fn run_parse<P: AsRef<Path>>(&mut self, path: P) {
+    pub fn parse<P: AsRef<Path>>(&mut self, path: P) {
         let path = path.as_ref();
         let file = File::open(path).unwrap();
         let rdr = BufReader::new(file);
@@ -95,19 +95,27 @@ impl Walker {
             .to_str()
             .unwrap()
             .to_string();
-        self.parse_object(schema, name, Some(path.to_path_buf()));
+        let _ = self.parse_object(schema, name, Some(path.to_path_buf()));
     }
 
-    fn parse_object(&mut self, schema: SchemaObject, name: String, path: Option<PathBuf>) {
-        assert_eq!(Self::get_type(&schema).unwrap(), InstanceType::Object);
-        let schema = schema.object.unwrap();
+    /// return: type_name
+    #[must_use]
+    fn parse_object(
+        &mut self,
+        schema: SchemaObject,
+        name: String,
+        path: Option<PathBuf>,
+    ) -> String {
+        debug_assert!(Self::get_type(&schema).unwrap() == InstanceType::Object);
+        let validator = schema.object.unwrap();
+
         let mut object = Object {
             name: name.clone(),
             path,
             ..Default::default()
         };
 
-        for (key, schema) in schema.properties {
+        for (key, schema) in validator.properties {
             let schema = schema.into_object();
             let mut field = Field::default();
 
@@ -121,48 +129,58 @@ impl Walker {
             field.type_name = match Self::get_type(&schema).unwrap() {
                 InstanceType::Null => todo!(),
                 InstanceType::Boolean => "bool".into(),
-                InstanceType::Object => "()".into(),  // TODO
-                InstanceType::Array => {
-                    let validator = schema.array.unwrap();
-                    let schema = match validator.items.unwrap() {
-                        SingleOrVec::Single(v) => *v,
-                        SingleOrVec::Vec(_) => unimplemented!(),
-                    };
-                    let schema = schema.into_object();
-                    match Self::get_type(&schema).unwrap() {
-                        InstanceType::Null => todo!(),
-                        InstanceType::Boolean => todo!(),
-                        InstanceType::Object => {
-                            let name = format!("{}__{}", name, key);
-                            self.parse_object(schema, name.clone(), None);
-                            format!("Vec<{}>", name)
-                        }
-                        InstanceType::Array => todo!(),
-                        InstanceType::Number => todo!(),
-                        InstanceType::Integer => todo!(),
-                        InstanceType::String => todo!(),
-                    }
-                }
+                InstanceType::Object => "()".into(), // TODO
+                InstanceType::Array => self.parse_array(schema, format!("{}__{}", name, key)),
                 InstanceType::Number => todo!(),
-                InstanceType::Integer => {
-                    let validator = schema.number.unwrap();
-                    if validator.minimum.unwrap_or(-1.0) >= 0.0 {
-                        "u32".into()
-                    } else {
-                        "i32".into()
-                    }
-                }
+                InstanceType::Integer => self.parse_number(schema),
                 InstanceType::String => "String".into(),
             };
 
             object.fields.insert(key, field);
         } // schema.properties
 
-        for key in &schema.required {
+        for key in &validator.required {
             object.fields.get_mut(key).unwrap().is_required = true;
         }
 
         self.objects.push(object);
+        name
+    }
+
+    /// return: type_name
+    #[must_use]
+    fn parse_array(&mut self, schema: SchemaObject, name: String) -> String {
+        debug_assert!(Self::get_type(&schema).unwrap() == InstanceType::Array);
+        let validator = schema.array.unwrap();
+
+        let schema = match validator.items.unwrap() {
+            SingleOrVec::Single(v) => *v,
+            SingleOrVec::Vec(_) => unimplemented!(),
+        };
+        let schema = schema.into_object();
+        let type_name = match Self::get_type(&schema).unwrap() {
+            InstanceType::Null => todo!(),
+            InstanceType::Boolean => todo!(),
+            InstanceType::Object => self.parse_object(schema, name.clone(), None),
+            InstanceType::Array => todo!(),
+            InstanceType::Number => todo!(),
+            InstanceType::Integer => todo!(),
+            InstanceType::String => todo!(),
+        };
+        format!("Vec<{}>", type_name)
+    }
+
+    /// return: type_name
+    #[must_use]
+    fn parse_number(&mut self, schema: SchemaObject) -> String {
+        debug_assert!(Self::get_type(&schema).unwrap() == InstanceType::Integer);
+        let validator = schema.number.unwrap();
+
+        if validator.minimum.unwrap_or(-1.0) >= 0.0 {
+            "u32".into()
+        } else {
+            "i32".into()
+        }
     }
 
     fn get_type(schema: &SchemaObject) -> Option<InstanceType> {

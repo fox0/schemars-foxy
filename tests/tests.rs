@@ -1,7 +1,7 @@
 use std::fs::read_to_string;
 
-use pretty_assertions::assert_eq;
 use glob::glob;
+use pretty_assertions::assert_eq;
 
 use schemars_foxy::Walker;
 
@@ -11,14 +11,11 @@ fn run_test(path: &str) {
     let pattern = path.to_owned() + "/**/*.json";
     for i in glob(pattern.as_str()).unwrap() {
         let i = i.unwrap();
-        walker.run_parse(i);
+        walker.parse(i);
     }
 
     let result = format!("{}", walker);
-    assert_eq!(
-        read_to_string(path.to_owned() + ".rs").unwrap(),
-        result
-    );
+    assert_eq!(read_to_string(path.to_owned() + ".rs").unwrap(), result);
 }
 
 #[test]
