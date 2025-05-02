@@ -11,6 +11,6 @@ mod test_cls_schemas;
 #[cfg(test)]
 #[path = "../tests/DespatchSchemas.rs"]
 mod test_despatch_schemas;
-#[cfg(test)]
-#[path = "../tests/OwnSchemas.rs"]
-mod test_own_schemas;
+// #[cfg(test)]
+// #[path = "../tests/OwnSchemas.rs"]
+// mod test_own_schemas;

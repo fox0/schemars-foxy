@@ -215,12 +215,15 @@ impl From<SchemaDeserialize> for Schema {
 }
 
 /// JSON scheme
+#[allow(dead_code)]
 #[derive(Debug, Clone, Deserialize)]
 #[serde(deny_unknown_fields)]
 #[serde(rename_all = "camelCase")]
 struct SchemaDeserialize {
     #[serde(rename = "type")]
     instance_type: Option<InstanceType>,
+    // #[serde(rename = "type")]
+    // instance_type: Option<Vec<InstanceType>>,
     #[serde(rename = "$ref")]
     custom_type: Option<String>,
     description: Option<String>,
@@ -229,6 +232,8 @@ struct SchemaDeserialize {
     properties: Option<IndexMap<String, SchemaDeserialize>>,
     additional_properties: Option<IndexMap<String, String>>, // TODO
     unique_items: Option<bool>,
+    min_items: Option<i32>,
+    max_items: Option<i32>,
     items: Option<Box<SchemaDeserialize>>,
     minimum: Option<isize>,
     maximum: Option<isize>,
@@ -305,6 +310,24 @@ mod tests {
     #[test]
     fn default_response() {
         let _schema = SchemaDeserialize::try_new("tests/OwnSchemas/default.response.json").unwrap();
+        assert!(true);
+    }
+
+    #[ignore]
+    #[test]
+    fn id_jwt_by_entity_get_direct_response() {
+        let _schema = SchemaDeserialize::try_new(
+            "tests/OwnSchemas/id_jwt_by_entity/get_direct.response.json",
+        )
+        .unwrap();
+        dbg!(_schema);
+        assert!(true);
+    }
+
+    #[test]
+    fn spo_addition_info_list_add() {
+        let _schema =
+            SchemaDeserialize::try_new("tests/OwnSchemas/spo_addition_info_list/add.json").unwrap();
         assert!(true);
     }
 

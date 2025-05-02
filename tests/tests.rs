@@ -39,7 +39,6 @@ fn despatch_schemas() {
     run_test("tests/DespatchSchemas");
 }
 
-#[ignore]
 #[test]
 fn own_schemas() {
     init();

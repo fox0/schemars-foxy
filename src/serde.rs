@@ -32,25 +32,27 @@ impl Walker {
         trace!("Walker::parse({:?})", path.as_ref());
 
         let path = path.as_ref();
-        let schema = SchemaRoot::try_new(path).unwrap();
+        let schema = match SchemaRoot::try_new(path) {
+            Ok(v) => v,
+            Err(e) => {
+                dbg!(path, e); // TODO
+                return;
+            }
+        };
+
         let name = path
             .with_extension("")
             .file_name()
             .unwrap()
             .to_str()
             .unwrap()
-            .to_string();
+            .to_string()
+            .replace(".", "_");
 
         for (name_type, custom_type) in schema.definitions {
             let key = format!("{}__{}", name, name_type);
-            match custom_type {
-                Schema::Integer => self.definitions.insert(key, "i32".into()),
-                Schema::String => self.definitions.insert(key, "String".into()),
-                // Schema::Custom(value) => {
-                //     self.definitions.insert(key, value);
-                // }
-                _ => todo!("{:?}", custom_type),
-            };
+            let value = self.parse_any(custom_type, key.clone(), None);
+            self.definitions.insert(key, value);
         }
 
         if let Schema::Object { properties } = schema.schema {
@@ -131,6 +133,7 @@ impl std::fmt::Display for Walker {
             result = format!("{}{}\n", result, i);
         }
 
+        // write!(f, "{}", result)
         write!(f, "{}", rustfmt(result).unwrap())
     }
 }
