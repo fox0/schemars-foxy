@@ -54,7 +54,7 @@ impl Walker {
         }
 
         if let Schema::Object { properties } = schema.schema {
-            let _ = self.parse_object(properties, name, Some(path.to_path_buf()));
+            let _ = self.parse_object(properties, name, Some(path.to_path_buf()));  // TODO description
         } else {
             unreachable!()
         }
@@ -71,11 +71,10 @@ impl Walker {
             Schema::Boolean => "bool".into(),
             Schema::Integer => "i32".into(),
             Schema::String => "String".into(),
-            Schema::Custom(v) => {
-                dbg!(&name, &v);
-                // [src/serde.rs:75:17] &name = "spo_epgu_additional_information__spo_epgu_additional_information__id_application"
-                // [src/serde.rs:75:17] &v = "int8"
-                todo!();
+            Schema::Custom(custom_type) => {
+                let key = format!("{}__{}", name.split("__").next().unwrap(), custom_type);
+                // inline
+                self.definitions[&key].clone()
             }
         }
     }
@@ -124,9 +123,9 @@ impl std::fmt::Display for Walker {
         let mut result = String::new();
         result = format!("{}{}\n", result, "#![allow(non_camel_case_types)]\n");
 
-        for (name_type, custom_type) in &self.definitions {
-            result = format!("{}pub type {} = {};\n", result, name_type, custom_type);
-        }
+        // for (name_type, custom_type) in &self.definitions {
+        //     result = format!("{}pub type {} = {};\n", result, name_type, custom_type);
+        // }
 
         for i in &self.properties {
             result = format!("{}{}\n", result, i);
