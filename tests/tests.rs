@@ -42,6 +42,6 @@ fn despatch_schemas() {
 #[ignore]
 #[test]
 fn own_schemas() {
-    // init();
+    init();
     run_test("tests/OwnSchemas");
 }

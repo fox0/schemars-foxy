@@ -4,7 +4,7 @@
 #[serde(deny_unknown_fields)]
 pub struct achievement_cls__achievement_cls {
     /// Идентификатор
-    pub id: u32,
+    pub id: i32,
     /// Наименование
     pub name: String,
     /// Признак актуальности
@@ -24,7 +24,7 @@ pub struct achievement_cls {
 #[serde(deny_unknown_fields)]
 pub struct application_specialty_status_cls__application_specialty_status_cls {
     /// Идентификатор
-    pub id: u32,
+    pub id: i32,
     /// Наименование
     pub name: String,
     /// Признак актуальности
@@ -45,7 +45,7 @@ pub struct application_specialty_status_cls {
 #[serde(deny_unknown_fields)]
 pub struct application_status_cls__application_status_cls {
     /// Идентификатор
-    pub id: u32,
+    pub id: i32,
     /// Наименование
     pub name: String,
     /// Признак актуальности
@@ -65,7 +65,7 @@ pub struct application_status_cls {
 #[serde(deny_unknown_fields)]
 pub struct benefit_cls__benefit_cls {
     /// Идентификатор
-    pub id: u32,
+    pub id: i32,
     /// Наименование
     pub name: String,
     /// Признак актуальности
@@ -85,13 +85,13 @@ pub struct benefit_cls {
 #[serde(deny_unknown_fields)]
 pub struct direction_cls__direction_cls {
     /// Идентификатор
-    pub id: u32,
+    pub id: i32,
     /// Уникальный код
     pub code: String,
     /// Наименование
     pub name: String,
     /// Идентификатор верхнего уровня
-    pub id_parent: Option<u32>,
+    pub id_parent: Option<i32>,
     /// Признак актуальности
     pub actual: bool,
     /// Время создания
@@ -113,7 +113,7 @@ pub struct document_type_cls__document_type_cls__fields_description {}
 #[serde(deny_unknown_fields)]
 pub struct document_type_cls__document_type_cls {
     /// Идентификатор
-    pub id: u32,
+    pub id: i32,
     /// Наименование
     pub name: String,
     /// Реквизиты из расширенного списка в формате json (см. пункт 'Документы поступающего. Общее описание' Инструкции API)
@@ -135,7 +135,7 @@ pub struct document_type_cls {
 #[serde(deny_unknown_fields)]
 pub struct documents_check_status__documents_check_status {
     /// Идентификатор
-    pub id: u32,
+    pub id: i32,
     /// Наименование
     pub name: String,
     /// Признак актуальности
@@ -155,7 +155,7 @@ pub struct documents_check_status {
 #[serde(deny_unknown_fields)]
 pub struct education_form_cls__education_form_cls {
     /// Идентификатор
-    pub id: u32,
+    pub id: i32,
     /// Наименование
     pub name: String,
     /// Признак актуальности
@@ -175,7 +175,7 @@ pub struct education_form_cls {
 #[serde(deny_unknown_fields)]
 pub struct education_level_cls__education_level_cls {
     /// Идентификатор
-    pub id: u32,
+    pub id: i32,
     /// Наименование
     pub name: String,
     /// Признак актуальности
@@ -195,7 +195,7 @@ pub struct education_level_cls {
 #[serde(deny_unknown_fields)]
 pub struct free_education_reasons_cls__free_education_reasons_cls {
     /// Идентификатор
-    pub id: u32,
+    pub id: i32,
     /// Наименование
     pub name: String,
     /// Признак актуальности
@@ -216,7 +216,7 @@ pub struct free_education_reasons_cls {
 #[serde(deny_unknown_fields)]
 pub struct gender_cls__gender_cls {
     /// Идентификатор
-    pub id: u32,
+    pub id: i32,
     /// Наименование
     pub name: String,
     /// Признак актуальности
@@ -236,7 +236,7 @@ pub struct gender_cls {
 #[serde(deny_unknown_fields)]
 pub struct oksm_cls__oksm_cls {
     /// Идентификатор
-    pub id: u32,
+    pub id: i32,
     /// Наименование
     pub name: String,
     /// Признак актуальности
@@ -256,7 +256,7 @@ pub struct oksm_cls {
 #[serde(deny_unknown_fields)]
 pub struct packages_status_cls__packages_status_cls {
     /// Идентификатор
-    pub id: u32,
+    pub id: i32,
     /// Наименование
     pub name: String,
     /// Признак актуальности
@@ -276,7 +276,7 @@ pub struct packages_status_cls {
 #[serde(deny_unknown_fields)]
 pub struct payment_form_cls__payment_form_cls {
     /// Идентификатор
-    pub id: u32,
+    pub id: i32,
     pub code_esnsi: Option<String>,
     /// Наименование
     pub name: String,
@@ -297,7 +297,7 @@ pub struct payment_form_cls {
 #[serde(deny_unknown_fields)]
 pub struct regions_cls__regions_cls {
     /// Идентификатор
-    pub id: u32,
+    pub id: i32,
     /// Наименование
     pub name: String,
     /// Признак актуальности
@@ -317,7 +317,7 @@ pub struct regions_cls {
 #[serde(deny_unknown_fields)]
 pub struct special_conditions_cls__special_conditions_cls {
     /// Идентификатор
-    pub id: u32,
+    pub id: i32,
     /// Наименование
     pub name: String,
     /// Признак актуальности
@@ -337,7 +337,7 @@ pub struct special_conditions_cls {
 #[serde(deny_unknown_fields)]
 pub struct subjects_cls__subjects_cls {
     /// Идентификатор
-    pub id: u32,
+    pub id: i32,
     /// Наименование
     pub name: String,
     /// Признак актуальности

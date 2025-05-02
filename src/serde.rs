@@ -4,54 +4,140 @@ use indexmap::IndexMap;
 use log::trace;
 use rustfmt_wrapper::rustfmt;
 
-use crate::{InstanceType, Schema};
+use crate::{Schema, SchemaField, SchemaRoot};
 
-#[derive(Default)]
+#[derive(Debug, Default)]
 pub struct Walker {
-    objects: Vec<Object>,
+    definitions: IndexMap<String, String>,
+    properties: Vec<Object>,
 }
 
-#[derive(Default)]
+#[derive(Debug, Default)]
 struct Object {
     name: String,
     path: Option<PathBuf>,
     // <name, _>
-    fields: IndexMap<String, Field>,
-    // <name, _>
-    custom_types: IndexMap<String, CustomType>,
+    fields: IndexMap<String, ObjectField>,
 }
 
-#[derive(Default)]
-struct Field {
+#[derive(Debug, Default)]
+struct ObjectField {
     description: Option<String>,
     type_name: String,
     is_required: bool,
 }
 
-struct CustomType {
-    type_name: String,
+impl Walker {
+    pub fn parse<P: AsRef<Path>>(&mut self, path: P) {
+        trace!("Walker::parse({:?})", path.as_ref());
+
+        let path = path.as_ref();
+        let schema = SchemaRoot::try_new(path).unwrap();
+        let name = path
+            .with_extension("")
+            .file_name()
+            .unwrap()
+            .to_str()
+            .unwrap()
+            .to_string();
+
+        for (name_type, custom_type) in schema.definitions {
+            let key = format!("{}__{}", name, name_type);
+            match custom_type {
+                Schema::Integer => self.definitions.insert(key, "i32".into()),
+                Schema::String => self.definitions.insert(key, "String".into()),
+                // Schema::Custom(value) => {
+                //     self.definitions.insert(key, value);
+                // }
+                _ => todo!("{:?}", custom_type),
+            };
+        }
+
+        if let Schema::Object { properties } = schema.schema {
+            let _ = self.parse_object(properties, name, Some(path.to_path_buf()));
+        } else {
+            unreachable!()
+        }
+    }
+
+    /// return: type_name
+    #[must_use]
+    fn parse_any(&mut self, schema: Schema, name: String) -> String {
+        trace!("Walker::parse_any()");
+
+        match schema {
+            Schema::Object { properties } => self.parse_object(properties, name, None),
+            Schema::Array { schema } => self.parse_array(*schema, name),
+            Schema::Boolean => "bool".into(),
+            Schema::Integer => "i32".into(),
+            Schema::String => "String".into(),
+            Schema::Custom(v) => {
+                dbg!(&name, &v);
+                // [src/serde.rs:75:17] &name = "spo_epgu_additional_information__spo_epgu_additional_information__id_application"
+                // [src/serde.rs:75:17] &v = "int8"
+                todo!();
+            }
+        }
+    }
+
+    /// return: type_name
+    #[must_use]
+    fn parse_object(
+        &mut self,
+        properties: Vec<SchemaField>,
+        name: String,
+        path: Option<PathBuf>,
+    ) -> String {
+        trace!("Walker::parse_object()");
+
+        let mut fields = IndexMap::new();
+        for f in properties {
+            let name = format!("{}__{}", name, f.name);
+            let value = ObjectField {
+                description: f.description,
+                type_name: self.parse_any(f.schema, name),
+                is_required: f.is_required,
+            };
+            fields.insert(f.name, value);
+        }
+
+        self.properties.push(Object {
+            name: name.clone(),
+            path,
+            fields,
+        });
+        name
+    }
+
+    /// return: type_name
+    #[must_use]
+    fn parse_array(&mut self, schema: Schema, name: String) -> String {
+        trace!("Walker::parse_array()");
+
+        let type_name = self.parse_any(schema, name);
+        format!("Vec<{}>", type_name)
+    }
 }
 
 impl std::fmt::Display for Walker {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> Result<(), std::fmt::Error> {
         let mut result = String::new();
         result = format!("{}{}\n", result, "#![allow(non_camel_case_types)]\n");
-        for i in &self.objects {
+
+        for (name_type, custom_type) in &self.definitions {
+            result = format!("{}pub type {} = {};\n", result, name_type, custom_type);
+        }
+
+        for i in &self.properties {
             result = format!("{}{}\n", result, i);
         }
+
         write!(f, "{}", rustfmt(result).unwrap())
     }
 }
 
 impl std::fmt::Display for Object {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> Result<(), std::fmt::Error> {
-        if !self.custom_types.is_empty() {
-            for (name, custom_type) in &self.custom_types {
-                writeln!(f, "pub type {} = {};", name, custom_type.type_name)?;
-            }
-            writeln!(f)?;
-        }
-
         if let Some(path) = &self.path {
             writeln!(f, "/// {}", path.display())?;
         }
@@ -71,115 +157,5 @@ impl std::fmt::Display for Object {
         }
         writeln!(f, "}}")?;
         Ok(())
-    }
-}
-
-impl Walker {
-    pub fn parse<P: AsRef<Path>>(&mut self, path: P) {
-        trace!("Walker::parse({:?})", path.as_ref());
-
-        let path = path.as_ref();
-        let schema = Schema::try_new(path).unwrap();
-        let name = path
-            .with_extension("")
-            .file_name()
-            .unwrap()
-            .to_str()
-            .unwrap()
-            .to_string();
-        let _ = self.parse_object(schema, name, Some(path.to_path_buf()));
-    }
-
-    /// return: type_name
-    #[must_use]
-    fn parse_any(&mut self, schema: Schema, name: String) -> String {
-        trace!("Walker::parse_any()");
-
-        match schema.instance_type {
-            // Some(InstanceType::Null) => todo!(),
-            Some(InstanceType::Boolean) => "bool".into(),
-            Some(InstanceType::Object) => self.parse_object(schema, name, None),
-            Some(InstanceType::Array) => self.parse_array(schema, name),
-            // Some(InstanceType::Number) => todo!(),
-            Some(InstanceType::Integer) => self.parse_number(schema),
-            Some(InstanceType::String) => "String".into(),
-            None => {
-                debug_assert!(schema.custom_type.is_some());
-
-                "()/*TODO*/".into()
-                // schema.custom_type = Some("#/definitions/int4",
-            }
-        }
-    }
-
-    /// return: type_name
-    #[must_use]
-    fn parse_object(&mut self, schema: Schema, name: String, path: Option<PathBuf>) -> String {
-        trace!("Walker::parse_object()");
-        debug_assert_eq!(schema.instance_type, Some(InstanceType::Object));
-
-        let mut object = Object {
-            name: name.clone(),
-            path,
-            ..Default::default()
-        };
-
-        if let Some(definitions) = schema.definitions {
-            for (key, schema) in definitions {
-                let name = format!("{}__{}", name, key);
-                let type_name = match schema.instance_type {
-                    Some(InstanceType::Integer) => self.parse_number(schema),
-                    Some(InstanceType::String) => "String".into(),
-                    _ => todo!(),
-                };
-                let custom_type = CustomType { type_name };
-                object.custom_types.insert(name, custom_type);
-            }
-        }
-
-        if let Some(properties) = schema.properties {
-            for (key, schema) in properties {
-                let name = format!("{}__{}", name, key);
-                let field = Field {
-                    description: schema.description.clone(),
-                    type_name: self.parse_any(schema, name),
-                    is_required: false,
-                };
-                object.fields.insert(key, field);
-            }
-        } // schema.properties
-
-        if let Some(required) = schema.required {
-            for key in required {
-                object.fields.get_mut(&key).unwrap().is_required = true;
-            }
-        }
-
-        self.objects.push(object);
-        name
-    }
-
-    /// return: type_name
-    #[must_use]
-    fn parse_array(&mut self, schema: Schema, name: String) -> String {
-        trace!("Walker::parse_array()");
-        debug_assert_eq!(schema.instance_type, Some(InstanceType::Array));
-
-        let schema = schema.items.unwrap();
-        let type_name = self.parse_any(*schema, name);
-        format!("Vec<{}>", type_name)
-    }
-
-    /// return: type_name
-    #[must_use]
-    fn parse_number(&mut self, schema: Schema) -> String {
-        trace!("Walker::parse_number()");
-        debug_assert_eq!(schema.instance_type, Some(InstanceType::Integer));
-
-        if schema.minimum.unwrap_or(-1) >= 0 {
-            "u32".into()
-        } else {
-            "i32".into()
-        }
     }
 }
