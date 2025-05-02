@@ -1,4 +1,4 @@
-use std::path::{Path, PathBuf};
+use std::path::Path;
 
 use indexmap::IndexMap;
 use log::trace;
@@ -15,7 +15,7 @@ pub struct Walker {
 #[derive(Debug, Default)]
 struct Object {
     name: String,
-    path: Option<PathBuf>,
+    description: Option<String>,
     // <name, _>
     fields: IndexMap<String, ObjectField>,
 }
@@ -54,7 +54,7 @@ impl Walker {
         }
 
         if let Schema::Object { properties } = schema.schema {
-            let _ = self.parse_object(properties, name, Some(path.to_path_buf()));  // TODO description
+            let _ = self.parse_object(properties, name, Some(path.display().to_string()));
         } else {
             unreachable!()
         }
@@ -62,12 +62,12 @@ impl Walker {
 
     /// return: type_name
     #[must_use]
-    fn parse_any(&mut self, schema: Schema, name: String) -> String {
+    fn parse_any(&mut self, schema: Schema, name: String, description: Option<String>) -> String {
         trace!("Walker::parse_any()");
 
         match schema {
-            Schema::Object { properties } => self.parse_object(properties, name, None),
-            Schema::Array { schema } => self.parse_array(*schema, name),
+            Schema::Object { properties } => self.parse_object(properties, name, description),
+            Schema::Array { schema } => self.parse_array(*schema, name, description),
             Schema::Boolean => "bool".into(),
             Schema::Integer => "i32".into(),
             Schema::String => "String".into(),
@@ -85,7 +85,7 @@ impl Walker {
         &mut self,
         properties: Vec<SchemaField>,
         name: String,
-        path: Option<PathBuf>,
+        description: Option<String>,
     ) -> String {
         trace!("Walker::parse_object()");
 
@@ -93,8 +93,8 @@ impl Walker {
         for f in properties {
             let name = format!("{}__{}", name, f.name);
             let value = ObjectField {
-                description: f.description,
-                type_name: self.parse_any(f.schema, name),
+                description: f.description.clone(),
+                type_name: self.parse_any(f.schema, name, f.description),
                 is_required: f.is_required,
             };
             fields.insert(f.name, value);
@@ -102,7 +102,7 @@ impl Walker {
 
         self.properties.push(Object {
             name: name.clone(),
-            path,
+            description,
             fields,
         });
         name
@@ -110,10 +110,10 @@ impl Walker {
 
     /// return: type_name
     #[must_use]
-    fn parse_array(&mut self, schema: Schema, name: String) -> String {
+    fn parse_array(&mut self, schema: Schema, name: String, description: Option<String>) -> String {
         trace!("Walker::parse_array()");
 
-        let type_name = self.parse_any(schema, name);
+        let type_name = self.parse_any(schema, name, description);
         format!("Vec<{}>", type_name)
     }
 }
@@ -137,8 +137,8 @@ impl std::fmt::Display for Walker {
 
 impl std::fmt::Display for Object {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> Result<(), std::fmt::Error> {
-        if let Some(path) = &self.path {
-            writeln!(f, "/// {}", path.display())?;
+        if let Some(description) = &self.description {
+            writeln!(f, "/// {}", description)?;
         }
         writeln!(f, "#[derive(Debug, serde::Serialize, serde::Deserialize)]")?;
         writeln!(f, "#[serde(deny_unknown_fields)]")?;

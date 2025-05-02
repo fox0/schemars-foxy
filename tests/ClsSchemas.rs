@@ -105,6 +105,7 @@ pub struct direction_cls {
     pub direction_cls: Option<Vec<direction_cls__direction_cls>>,
 }
 
+/// Реквизиты из расширенного списка в формате json (см. пункт 'Документы поступающего. Общее описание' Инструкции API)
 #[derive(Debug, serde::Serialize, serde::Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct document_type_cls__document_type_cls__fields_description {}

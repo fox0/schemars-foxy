@@ -123,6 +123,7 @@ pub struct spo_epgu_application__spo_epgu_application__entrant {
     pub photo: Option<spo_epgu_application__spo_epgu_application__entrant__photo>,
 }
 
+/// Список специальностей
 #[derive(Debug, serde::Serialize, serde::Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct spo_epgu_application__spo_epgu_application__application__application_specialty_list {
@@ -160,6 +161,7 @@ pub struct spo_epgu_application__spo_epgu_application__application__achievement_
     pub file_hash: String,
 }
 
+/// Список достижений
 #[derive(Debug, serde::Serialize, serde::Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct spo_epgu_application__spo_epgu_application__application__achievement_list {
@@ -179,6 +181,7 @@ pub struct spo_epgu_application__spo_epgu_application__application__document_lis
     pub file_hash: String,
 }
 
+/// Реквизиты согласно document_type_cls
 #[derive(Debug, serde::Serialize, serde::Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct spo_epgu_application__spo_epgu_application__application__document_list__fields {}
